@@ -9,6 +9,9 @@ if($instance['auto_detect']){
 		$obj = get_queried_object();
 		$user_id = $obj->post_author;
 	}
+} elseif($instance['random_author']){
+	$users = get_users();
+	$user_id = $users[array_rand($users)]->ID;
 }
 
 $author_link = !empty( $instance['link_url'] ) ? esc_url( $instance['link_url'] ) : get_author_posts_url(get_the_author_meta('ID',$user_id) );	

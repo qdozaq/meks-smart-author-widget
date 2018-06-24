@@ -11,7 +11,7 @@ class MKS_Author_Widget extends WP_Widget {
 	function __construct() {
 		$widget_ops = array( 'classname' => 'mks_author_widget', 'description' => __('Use this widget to display author/user profile info', 'meks-smart-author-widget') );
 		$control_ops = array( 'id_base' => 'mks_author_widget' );
-		parent::__construct( 'mks_author_widget', __('Meks Smart Author', 'meks-smart-author-widget'), $widget_ops, $control_ops );
+		parent::__construct( 'mks_author_widget', __('Meks Smart Author With Random', 'meks-smart-author-widget'), $widget_ops, $control_ops );
 		
 		if(!is_admin()){
 		  add_action( 'wp_enqueue_scripts', array($this,'enqueue_styles'));
@@ -22,6 +22,7 @@ class MKS_Author_Widget extends WP_Widget {
 				'title' => __('About Author', 'meks-smart-author-widget'),
 				'author' => 0,
 				'auto_detect' => 0,
+				'random_author' => 0,
 				'display_name' => 1,
 				'display_avatar' => 1,
 				'display_desc' => 1,
@@ -52,7 +53,7 @@ class MKS_Author_Widget extends WP_Widget {
 
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
 
-		if ( $this->is_co_authors_active() && $instance['auto_detect'] ) {
+		if ( is_single() && $this->is_co_authors_active() && $instance['auto_detect'] ) {
 			include( $this->meks_get_template('meks-smart-author-widget-co-authors-template.php') );
 		} else {
 			include( $this->meks_get_template('meks-smart-author-widget-template.php') );
@@ -64,6 +65,7 @@ class MKS_Author_Widget extends WP_Widget {
 		$instance = $old_instance;
 		$instance['title'] = strip_tags( $new_instance['title'] );
 		$instance['author'] = absint( $new_instance['author'] );
+		$instance['random_author'] = isset($new_instance['random_author']) ? 1 : 0;
 		$instance['auto_detect'] = isset($new_instance['auto_detect']) ? 1 : 0;
 		$instance['display_name'] = isset($new_instance['display_name']) ? 1 : 0;
 		$instance['display_avatar'] = isset($new_instance['display_avatar']) ? 1 : 0;
@@ -109,6 +111,11 @@ class MKS_Author_Widget extends WP_Widget {
 			
 			<?php endif; ?>
 			
+		</p>
+		<p>
+		  	<input id="<?php echo $this->get_field_id( 'random_author' ); ?>" type="checkbox" name="<?php echo $this->get_field_name( 'random_author' ); ?>" value="1" <?php checked(1, $instance['random_author']); ?>/>
+		  	<label for="<?php echo $this->get_field_id( 'random_author' ); ?>"><?php _e('Randomize author', 'meks-smart-author-widget'); ?></label>
+		  	<small class="howto"><?php _e('Randomize author on none single post pages', 'meks-smart-author-widget'); ?></small>
 		</p>
 
 		<p>
