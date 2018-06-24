@@ -3,16 +3,13 @@
 $user_id = $instance['author'];
 if($instance['auto_detect']){
 	if(is_author()){
-			$obj = get_queried_object();
-			$user_id = $obj->data->ID;
-		} elseif(is_single()){
-			$obj = get_queried_object();
-			$user_id = $obj->post_author;
-		}
+		$obj = get_queried_object();
+		$user_id = $obj->data->ID;
+	} elseif(is_single()){
+		$obj = get_queried_object();
+		$user_id = $obj->post_author;
 	}
-		
-
-
+}
 
 $author_link = !empty( $instance['link_url'] ) ? esc_url( $instance['link_url'] ) : get_author_posts_url(get_the_author_meta('ID',$user_id) );	
 $title =  $instance['name_to_title'] ? get_the_author_meta('display_name', $user_id) : apply_filters('widget_title', $instance['title'] );
@@ -51,15 +48,13 @@ if ( !empty($title) ) {
 <?php endif; ?>
 
 <?php if($instance['display_desc']) : ?>
-	<?php echo wpautop(get_the_author_meta('description',$user_id)); ?>
+	<?php $description = get_the_author_meta( 'description', $user_id ); ?>
+	<?php echo wpautop( $this->trim_chars( $description, $instance['limit_chars'] ) ); ?>
 <?php endif; ?>
 	
 <?php if($instance['display_all_posts'] && $instance['link_text']) : ?>
 	<div class="mks_autor_link_wrap"><a href="<?php echo $author_link; ?>" class="mks_author_link"><?php echo $instance['link_text']; ?></a></div>
 <?php endif; ?>
-
-
-
 
 <?php
 echo $after_widget;

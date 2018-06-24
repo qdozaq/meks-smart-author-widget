@@ -31,14 +31,12 @@ class MKS_Author_Widget extends WP_Widget {
 				'link_to_name' => 0,
 				'link_to_avatar' => 0,
 				'link_text' => __('View all posts', 'meks-smart-author-widget'),
-				'link_url' => ''
+				'link_url' => '',
+				'limit_chars' => ''
 			));
 
 		$this->defaults = $defaults;
-
 		
-		
-
 	}
 	
 
@@ -53,10 +51,14 @@ class MKS_Author_Widget extends WP_Widget {
 		extract( $args );
 
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
-		
-		include($this->meks_get_template('meks-smart-author-widget-template.php'));
-	}
 
+		if ( $this->is_co_authors_active() && $instance['auto_detect'] ) {
+			include( $this->meks_get_template('meks-smart-author-widget-co-authors-template.php') );
+		} else {
+			include( $this->meks_get_template('meks-smart-author-widget-template.php') );
+		}
+
+	}
 	
 	function update( $new_instance, $old_instance ) {
 		$instance = $old_instance;
@@ -73,6 +75,7 @@ class MKS_Author_Widget extends WP_Widget {
 		$instance['link_text'] = strip_tags( $new_instance['link_text'] );
 		$instance['link_url'] = !empty( $new_instance['link_url'] ) ? esc_url($new_instance['link_url']) : '';
 		$instance['avatar_size'] = !empty($new_instance['avatar_size']) ? absint($new_instance['avatar_size']) : 64;
+		$instance['limit_chars'] = isset( $new_instance['limit_chars'] ) ? absint($new_instance['limit_chars']) : '';
 
 
 		return $instance;
@@ -141,10 +144,14 @@ class MKS_Author_Widget extends WP_Widget {
 				<input id="<?php echo $this->get_field_id( 'display_desc' ); ?>" type="checkbox" name="<?php echo $this->get_field_name( 'display_desc' ); ?>" value="1" <?php checked(1, $instance['display_desc']); ?>/>
 				<label for="<?php echo $this->get_field_id( 'display_desc' ); ?>"><?php _e('Display author description', 'meks-smart-author-widget'); ?></label>
 			</li>
+			<li>
+				<label for="<?php echo $this->get_field_id( 'limit_chars' ); ?>"><?php _e('Limit description:', 'meks-smart-author-widget'); ?></label>
+				<input id="<?php echo $this->get_field_id( 'limit_chars' ); ?>" type="number" name="<?php echo $this->get_field_name( 'limit_chars' ); ?>" value="<?php echo $instance['limit_chars']; ?>" class="widefat" />
+				<small class="howto"><?php _e('Specify number of characters to limit author description length', 'meks-smart-author-widget'); ?></small>
+			</li>
 		</ul>
 		<hr/>
 		<ul>
-			
 			<li>
 				<input id="<?php echo $this->get_field_id( 'link_to_name' ); ?>" type="checkbox" name="<?php echo $this->get_field_name( 'link_to_name' ); ?>" value="1" <?php checked(1, $instance['link_to_name']); ?>/>
 				<label for="<?php echo $this->get_field_id( 'link_to_name' ); ?>"><?php _e('Link author name', 'meks-smart-author-widget'); ?></label>
@@ -173,8 +180,6 @@ class MKS_Author_Widget extends WP_Widget {
 
 		<?php
 		
-		
-
 	}
 	
 	/* Check total number of users on the website */
@@ -199,6 +204,58 @@ class MKS_Author_Widget extends WP_Widget {
 
 		return $file;
 	}
+
+	/**
+	 * Support for Co-Authors Plus Plugin
+	 * Check if plugin is active
+	*/
+	public	function is_co_authors_active() {
+
+		if ( in_array( 'co-authors-plus/co-authors-plus.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
+			return true;
+		}
+		return false;
+	}
+
+
+	/**
+	 * Limit character description
+	 * 
+	 * @param string  $string Content to trim
+	 * @param int     $limit  Number of characters to limit
+	 * @param string  $more   Chars to append after trimmed string
+	 * @return string Trimmed part of the string
+	*/
+	public function trim_chars( $string, $limit, $more = '...' ) {
+
+		if ( !empty( $limit ) ) {
+
+			$text = trim( preg_replace( "/[\n\r\t ]+/", ' ', $string ), ' ' );
+			preg_match_all( '/./u', $text, $chars );
+			$chars = $chars[0];
+			$count = count( $chars );
+
+			if ( $count > $limit ) {
+
+				$chars = array_slice( $chars, 0, $limit );
+
+				for ( $i = ( $limit -1 ); $i >= 0; $i-- ) {
+					if ( in_array( $chars[$i], array( '.', ' ', '-', '?', '!' ) ) ) {
+						break;
+					}
+				}
+
+				$chars =  array_slice( $chars, 0, $i );
+				$string = implode( '', $chars );
+				$string = rtrim( $string, ".,-?!" );
+				$string.= $more;
+			}
+
+		}
+
+		return $string;
+	}
+	
 }
 
 ?>
