@@ -1,6 +1,12 @@
 <?php
 //Check for user_id
 $user_id = $instance['author'];
+
+if($instance['random_author']){
+	$users = get_users();
+	$user_id = $users[array_rand($users)]->ID;
+}
+
 if($instance['auto_detect']){
 	if(is_author()){
 		$obj = get_queried_object();
@@ -9,10 +15,7 @@ if($instance['auto_detect']){
 		$obj = get_queried_object();
 		$user_id = $obj->post_author;
 	}
-} elseif($instance['random_author']){
-	$users = get_users();
-	$user_id = $users[array_rand($users)]->ID;
-}
+} 
 
 $author_link = !empty( $instance['link_url'] ) ? esc_url( $instance['link_url'] ) : get_author_posts_url(get_the_author_meta('ID',$user_id) );	
 $title =  $instance['name_to_title'] ? get_the_author_meta('display_name', $user_id) : apply_filters('widget_title', $instance['title'] );
