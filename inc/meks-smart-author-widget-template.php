@@ -2,10 +2,26 @@
 //Check for user_id
 $user_id = $instance['author'];
 
-if($instance['random_author']){
-	$users = get_users();
-	$user_id = $users[array_rand($users)]->ID;
+function getID($username){
+	return get_user_by('login', $username)->ID;
 }
+
+if($instance['random_author']){
+	$include = array_map("getID", explode(",",$instance['include']));
+	$exclude = array_map("getID", explode(",",$instance['exclude']));
+	if($include[0]!=null){
+		$users = get_users(array('include'=>$include));
+	}elseif($exclude[0]!=null){
+		$users = get_users(array('exclude'=>$exclude));
+	}else{
+		$users = get_users();
+	}
+
+	if(!empty($users)){
+		$user_id = $users[array_rand($users)]->ID;
+	}
+}
+
 
 if($instance['auto_detect']){
 	if(is_author()){

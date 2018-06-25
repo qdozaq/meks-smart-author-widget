@@ -23,6 +23,8 @@ class MKS_Author_Widget extends WP_Widget {
 				'author' => 0,
 				'auto_detect' => 0,
 				'random_author' => 0,
+				'include' => __('', 'meks-smart-author-widget'),
+				'exclude' => __('', 'meks-smart-author-widget'),
 				'display_name' => 1,
 				'display_avatar' => 1,
 				'display_desc' => 1,
@@ -65,8 +67,10 @@ class MKS_Author_Widget extends WP_Widget {
 		$instance = $old_instance;
 		$instance['title'] = strip_tags( $new_instance['title'] );
 		$instance['author'] = absint( $new_instance['author'] );
-		$instance['random_author'] = isset($new_instance['random_author']) ? 1 : 0;
 		$instance['auto_detect'] = isset($new_instance['auto_detect']) ? 1 : 0;
+		$instance['random_author'] = isset($new_instance['random_author']) ? 1 : 0;
+		$instance['include'] = strip_tags($new_instance['include']);
+		$instance['exclude'] = strip_tags($new_instance['exclude']);
 		$instance['display_name'] = isset($new_instance['display_name']) ? 1 : 0;
 		$instance['display_avatar'] = isset($new_instance['display_avatar']) ? 1 : 0;
 		$instance['display_desc'] = isset($new_instance['display_desc']) ? 1 : 0;
@@ -113,15 +117,28 @@ class MKS_Author_Widget extends WP_Widget {
 			
 		</p>
 		<p>
+		  	<input id="<?php echo $this->get_field_id( 'auto_detect' ); ?>" type="checkbox" name="<?php echo $this->get_field_name( 'auto_detect' ); ?>" value="1" <?php checked(1, $instance['auto_detect']); ?>/>
+		  	<label for="<?php echo $this->get_field_id( 'auto_detect' ); ?>"><?php _e('Automatically detect author', 'meks-smart-author-widget'); ?></label>
+		  	<small class="howto"><?php _e('Use this option to automatically detect author if this sidebar is used on single post template or author template', 'meks-smart-author-widget'); ?></small>
+		</p>
+
+		<h4><?php _e('Randomize options', 'meks-smart-author-widget'); ?></h4>
+		<p>
 		  	<input id="<?php echo $this->get_field_id( 'random_author' ); ?>" type="checkbox" name="<?php echo $this->get_field_name( 'random_author' ); ?>" value="1" <?php checked(1, $instance['random_author']); ?>/>
 		  	<label for="<?php echo $this->get_field_id( 'random_author' ); ?>"><?php _e('Randomize author', 'meks-smart-author-widget'); ?></label>
 		  	<small class="howto"><?php _e('Randomize author on none single post pages', 'meks-smart-author-widget'); ?></small>
 		</p>
-
 		<p>
-		  	<input id="<?php echo $this->get_field_id( 'auto_detect' ); ?>" type="checkbox" name="<?php echo $this->get_field_name( 'auto_detect' ); ?>" value="1" <?php checked(1, $instance['auto_detect']); ?>/>
-		  	<label for="<?php echo $this->get_field_id( 'auto_detect' ); ?>"><?php _e('Automatically detect author', 'meks-smart-author-widget'); ?></label>
-		  	<small class="howto"><?php _e('Use this option to automatically detect author if this sidebar is used on single post template or author template', 'meks-smart-author-widget'); ?></small>
+			<label for="<?php echo $this->get_field_id( 'include' ); ?>"><?php _e('include', 'meks-smart-author-widget'); ?>:</label>
+			<input id="<?php echo $this->get_field_id( 'include' ); ?>" type="text" name="<?php echo $this->get_field_name( 'include' ); ?>" value="<?php echo $instance['include']; ?>" class="widefat" />
+			  <small class="howto"><?php _e('Enter usernames to include seperated by commas. If blank it will include all users. 
+			  								Ex. johnDoe,larry potter,waldo44', 'meks-smart-author-widget'); ?></small>
+		</p>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'exclude' ); ?>"><?php _e('exclude', 'meks-smart-author-widget'); ?>:</label>
+			<input id="<?php echo $this->get_field_id( 'exclude' ); ?>" type="text" name="<?php echo $this->get_field_name( 'exclude' ); ?>" value="<?php echo $instance['exclude']; ?>" class="widefat" />
+			  <small class="howto"><?php _e('Enter usernames to exclude seperated by commas. Assumes that include is blank 
+			  								Ex. johnDoe,larry potter,waldo44', 'meks-smart-author-widget'); ?></small>
 		</p>
 		<h4><?php _e('Display Options', 'meks-smart-author-widget'); ?></h4>
 		<ul>
